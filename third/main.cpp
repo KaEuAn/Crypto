@@ -18,10 +18,10 @@ struct CTR_ACPKM {
 
     CTR_ACPKM(std::string start_key) : N(16), s(16), IV(0), start_key(start_key) {}
 
-    std::string ACPKM(std::string& key) {
+    std::string ACPKM(std::string key) {
         
         Solution sol(key);
-        std::string ans;
+        std::string ans('0', 0);
         for(int i = 0; i < 2; ++i) {
             std::string ss(D[i]);
             ans += sol.encode(ss);
@@ -29,24 +29,33 @@ struct CTR_ACPKM {
         return ans;
     }
 
-    void encode(std::string& message) const {
-        int N = message.size;
+    std::string Xor(std::string a, std::string b) {
+        int N = a.size();
+        std::string ans('0', N);
+        for(int i = 0; i < N; ++i) {
+            ans = a[i] ^ b[i];
+        }
+        return ans;
+    }
+
+    std::string encode(std::string& message) {
+        int N = message.size();
         std::string key = ACPKM(key);
-        std::string ans;
-        int q = key.size / s;
+        std::string ans('0', 0);
+        int q = N / s;
         int cur_s = 0;
-        std::string ans;
         for(int i = 0; i < q; ++i, ++IV) {
             
             std::string CTR = std::to_string(IV) + std::string('0', N/2);
-            while(CTR.size < N) {
+            while(CTR.size() < N) {
                 CTR = "0" + CTR;
             }
             int end = std::min((i + 1) * s, N);
             std::string cur_mes(message.begin() + i * s, message.begin() + end);
+            std::cout << 11111 << cur_mes;
             Solution sol(key);
             std::string enc = sol.encode(CTR);
-
+            ans += Xor(cur_mes, enc);
 
             ++cur_s;
 
@@ -56,6 +65,7 @@ struct CTR_ACPKM {
 
             }
         }
+        return ans;
 
     }
 
@@ -64,6 +74,7 @@ struct CTR_ACPKM {
 int main() {
     std::string start_key = "8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef";
     CTR_ACPKM sol1(start_key);
-    sol1.ACPKM("dsaf");
+    std::string xxx = "dsafsdfl;ajdfoasjfdlsafjdlksafsdlfjskldfjksdlajgpiaghewfdsja;fohafpds;fhjdlsafhdopwafhdsa";
+    std::cout << '\n' << "ans" << '\n' << sol1.encode(xxx);
     return 0;
 }
