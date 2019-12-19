@@ -10,18 +10,18 @@ std::string D[] = {
 
 
 struct CTR_ACPKM {
-    int N;
+    int NN;
     int s;
     int IV;
     std::string start_key;
 
 
-    CTR_ACPKM(std::string start_key) : N(16), s(16), IV(0), start_key(start_key) {}
+    CTR_ACPKM(std::string start_key) : NN(16), s(8), IV(0), start_key(start_key) {}
 
     std::string ACPKM(std::string key) {
         
         Solution sol(key);
-        std::string ans('0', 0);
+        std::string ans(0, '0');
         for(int i = 0; i < 2; ++i) {
             std::string ss(D[i]);
             ans += sol.encode(ss);
@@ -31,35 +31,34 @@ struct CTR_ACPKM {
 
     std::string Xor(std::string a, std::string b) {
         int N = a.size();
-        std::string ans('0', N);
+        std::string ans(0, '0');
         for(int i = 0; i < N; ++i) {
-            ans = a[i] ^ b[i];
+            ans += int(a[i]) ^ int(b[i]);
         }
         return ans;
     }
 
     std::string encode(std::string& message) {
         int N = message.size();
-        std::string key = ACPKM(key);
-        std::string ans('0', 0);
+        std::string ans(0, '0');
         int q = N / s;
         int cur_s = 0;
+        std::string key = start_key;
         for(int i = 0; i < q; ++i, ++IV) {
             
-            std::string CTR = std::to_string(IV) + std::string('0', N/2);
-            while(CTR.size() < N) {
+            std::string CTR = std::to_string(IV) + std::string('0', NN/2);
+            while(CTR.size() < NN) {
                 CTR = "0" + CTR;
             }
-            int end = std::min((i + 1) * s, N);
-            std::string cur_mes(message.begin() + i * s, message.begin() + end);
-            std::cout << 11111 << cur_mes;
+            int endd = std::min((i + 1) * s, N);
+            std::string cur_mes(message.begin() + i * s, message.begin() + endd);
             Solution sol(key);
             std::string enc = sol.encode(CTR);
             ans += Xor(cur_mes, enc);
 
             ++cur_s;
 
-            if (cur_s * s >= N) {
+            if (cur_s * s >= NN) {
                 cur_s = 0;
                 key = ACPKM(key);
 
@@ -71,10 +70,17 @@ struct CTR_ACPKM {
 
 };
 
+
+struct OMAC_ACPKM {
+
+    
+};
+
 int main() {
     std::string start_key = "8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef";
     CTR_ACPKM sol1(start_key);
     std::string xxx = "dsafsdfl;ajdfoasjfdlsafjdlksafsdlfjskldfjksdlajgpiaghewfdsja;fohafpds;fhjdlsafhdopwafhdsa";
-    std::cout << '\n' << "ans" << '\n' << sol1.encode(xxx);
+    auto ans =  sol1.encode(xxx);
+    std::cout << '\n' << ans.size() << '\n' << ans;
     return 0;
 }
